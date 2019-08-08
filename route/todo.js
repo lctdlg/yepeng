@@ -23,7 +23,7 @@ todoRouter.post('/addTask', async (req, res) => {
 	
 	// 验证规则
 	const schema = {
-		title: Joi.string().required().min(2).max(30)
+		title: Joi.string().required().min(1).max(30)
 	};
 	// 验证客户端传递过来的请求参数 
 	const { error } = Joi.validate(req.body, schema);

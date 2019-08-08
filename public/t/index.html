@@ -89,11 +89,29 @@
                 let html = template('tpl', {
                     tasks: arr
                 });
+                // 判断任务的状态, 如果有完成的任务, 就显示clear-completed这个标签, 没有就隐藏这个标签
+                // let completeArrStatus = arr.filter(item => item.completed == true);
+                // console.log(completeArrStatus);
+                // if (completeArrStatus.length!=0) {
+                //     $('#completeArrStatus').show();
+                // } else {
+                //     $('#completeArrStatus').hide();
+                // }
+
                 taskBox.html(html);
             } else {
                 let html = template('tpl', {
                     tasks: taskAry
                 });
+                // 判断任务的状态, 如果有完成的任务, 就显示clear-completed这个标签, 没有就隐藏这个标签
+                // let completeArrStatus = taskAry.filter(item => item.completed == true);
+                // console.log(completeArrStatus);
+
+                // if (completeArrStatus.length!=0) {
+                //     $('#completeArrStatus').show();
+                // } else {
+                //     $('#completeArrStatus').hide();
+                // }
                 taskBox.html(html);
             }
 
@@ -159,10 +177,8 @@
                     // 拿到点击的那个删除的任务
                     // console.log(response);
                     // 通过response.id的值去数组中 找到这个元素的下标 然后通过这个下标将这个元素删除
-
                     // 返回的是找到的当前的id的那个元素在数组中的下标
-                    let index = taskAry.findIndex(item => item.id == response.id);
-
+                    let index = taskAry.findIndex(item => item._id == response._id);
                     // 删除这个下标的元素
                     taskAry.splice(index, 1);
                     render();
@@ -178,7 +194,6 @@
             // 拿到当前的checked属性
             let status = $(this).prop('checked');
             let id = $(this).siblings('button').attr('data-id');
-
             // 向服务器发送ajax请求
             $.ajax({
                 type: "post",
@@ -194,6 +209,7 @@
                     render();
                     // 计算未完成的任务数量
                     getCount();
+                    $('#clear-completed').show();
                 }
             });
 
@@ -334,11 +350,15 @@
 
 
         //  Clear completed 点击事件
-        // 点击 Clear completed 发送ajax请求 删除数据库里面的已完成的任务 更新数组 渲染页面
+        // 点击 Clear completed 发送ajax请求 删除数据库里面的已完成的任务 
+        // 删除数组里面completed是true的任务  重新渲染页面
+
         // 如果没有完成的任务   Clear completed 这个标签就不显示
 
+
+
         // 给Clear completed添加点击事件
-        $('#clear-completed').on('click', function(){
+        $('#clear-completed').on('click', function () {
             // 首先要找到完成任务的id, 拿到完成的任务
             // let newAry = taskAry.filter(item => item.completed == true);
             // console.log(newAry);
@@ -346,15 +366,25 @@
                 type: "get",
                 url: "/todo/clearTask",
                 success: function (response) {
-                    // 数据库里面已经删除了  数组里面还没有删除
-                    // console.log(response);
-                    let newAry = taskAry.filter(item => item.completed == false); 
+                    // 数据库里面已经删除了  数组里面还没有删除  拿到的是未完成的任务
+                    // 拿到已经完成的任务
+                    let completeArr = taskAry.filter(item => item.completed == true);
+                    // 将已经完成的任务从数组里面删除
+                    let len = completeArr.length;
+                    for (let i = 0; i < len; i++) {
+                        let index = taskAry.findIndex(item => item._id == completeArr[i]._id);
+                        taskAry.splice(index, 1);
+                    }
+
+                    // 拿到未完成的任务
+                    let newAry = taskAry.filter(item => item.completed == false);
                     render(newAry);
                     getCount();
+
                 }
             });
 
-        })
+        });
     </script>
 </body>
 
